@@ -25,6 +25,8 @@ function wiv(params) {
     wiv.meta = {};
     wiv.style.display = "inline-block";
     let wivContent = document.createElement('div');
+    wivContent.style.position = "relative";
+    wivContent.style.zIndex = 17;
     wivContent.className = 'wiv-content';
     while (wiv.firstChild) {
       wivContent.appendChild(wiv.firstChild);
@@ -69,7 +71,7 @@ function wiv(params) {
 
   function sizeWiv(wiv) {
     let imageSize = parseFloat(wiv.dataset.wivImageSize) || 0;
-    wiv.meta.content.style.padding = imageSize + (parseFloat(wiv.dataset.wivHeight) * 4) + "px";
+    wiv.meta.content.style.padding = imageSize + (parseFloat(wiv.dataset.wivHeight) * 4) + (parseFloat(wiv.dataset.wivThickness)) + "px";
     wiv.meta.canvas.width = wiv.offsetWidth;
     wiv.meta.canvas.height = wiv.offsetHeight;
   }
@@ -84,6 +86,7 @@ function wiv(params) {
 
   function cacheAttributes(cacheId, elem) {
     let color = elem.dataset.wivColor != undefined ? elem.dataset.wivColor : "#FF0000";
+    let fill = elem.dataset.wivFill || false;
     let speed = speeds[elem.dataset.wivSpeed] || parseFloat(elem.dataset.wivSpeed) || speeds.standard;
     let height = parseFloat(elem.dataset.wivHeight);
     let tightness = parseFloat(elem.dataset.wivTightness);
@@ -100,6 +103,7 @@ function wiv(params) {
       'tightness': tightness,
       'thickness': thickness,
       'color': color,
+      'fill': fill,
       'image': image,
       'imageSize': imageSize || height ,
       'imageFrequency': imageFrequency || tightness * 2,
@@ -137,7 +141,7 @@ function wiv(params) {
   /**
    * Represents the logic to draw a single frame. Animates all wivs
    */
-  function drawLines(canvas, {speed, height, tightness, thickness, increment, frame, color, image, imageSize, imageFrequency, ctx}={}) {
+  function drawLines(canvas, {speed, height, tightness, thickness, increment, frame, color, fill, image, imageSize, imageFrequency, ctx}={}) {
     var canvasImage = null;
     let imageMode = image !== undefined;
     if(imageMode){
@@ -231,6 +235,10 @@ function wiv(params) {
     ctx.lineWidth = thickness;
     if(thickness != 0 ){
       ctx.stroke();
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
     }
 
     // current frame is tracked on per wiv basis. This is to help with speed calculations
